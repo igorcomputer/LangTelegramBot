@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Telegram.Bot;
 
 namespace LangTranslationTelegramBot
@@ -13,6 +14,9 @@ namespace LangTranslationTelegramBot
         static TelegramBotClient Bot;
         static Tutor Tutor = new Tutor();
 
+        // <user_id, word> 
+        static Dictionary<long, string> LastWord = new Dictionary<long, string>();
+
         const string COMMAND_LIST =
 @"
 /add <eng> <rus> - Добавление английского слова и его перевод в словарь
@@ -20,15 +24,11 @@ namespace LangTranslationTelegramBot
 /check <eng> <rus> - проверяем правильность перевода английского слова
 ";
 
-        //Tutor Tutor = new Tutor();
-
         [Obsolete]
         static void Main(string[] args)
         {
 
             Bot = new TelegramBotClient("6191785024:AAEYEPcVg7oyd1C5xweaJc3kRFJLYJUQew4");
-
-
 
             // TEST 
             //var me = Bot.GetMeAsync().Result;
@@ -46,6 +46,10 @@ namespace LangTranslationTelegramBot
             if (e == null || e.Message == null || e.Message.Type != Telegram.Bot.Types.Enums.MessageType.Text)
                 return;
 
+            Console.WriteLine(e.Message.Text);
+            Console.WriteLine(e.Message.From.Username);
+
+            var userID = e.Message.From.Id;
             var msgArgs = e.Message.Text.Split(' ');
             string text;
 
@@ -60,7 +64,7 @@ namespace LangTranslationTelegramBot
                     break;
 
                 case "/get":
-                    text = Tutor.GetRandomEngWord();
+                    text = GetRandomEngWord(userID);
                     break;
 
                 case "/check":
@@ -68,14 +72,26 @@ namespace LangTranslationTelegramBot
                     break;
 
                 default:
-                    text = COMMAND_LIST;
+                    if (LastWord.ContainsKey(userID))
+                        text = CheckWord(LastWord[userID], msgArgs[0]);
+                    else
+                        text = COMMAND_LIST;
                     break;
             }
 
             await Bot.SendTextMessageAsync(e.Message.From.Id, text);
+        }
 
-            Console.WriteLine(e.Message.Text);
-            Console.WriteLine(e.Message.From.Username);
+
+        private static string GetRandomEngWord(long userID)
+        {
+            var text = Tutor.GetRandomEngWord();
+            if (LastWord.ContainsKey(userID))
+                LastWord[userID] = text;
+            else
+                LastWord.Add(userID, text);
+
+            return text;
         }
 
         private static string CheckWord(string[] msgArr)
@@ -111,7 +127,6 @@ namespace LangTranslationTelegramBot
                 Tutor.AddWord(msgArr[1], msgArr[2]);
                 return "Новое слово добавлено в словарь";
             }
-
         }
     }
 }

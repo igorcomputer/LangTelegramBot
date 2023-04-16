@@ -17,6 +17,13 @@ namespace LangTranslationTelegramBot
             _dic = _storage.GetAllWords();
         }
 
+        public bool HasWord(string eng) {
+            if (_dic.ContainsKey(eng))
+                return true;
+            else
+                return false;
+        }
+
         public void AddWord(string eng, string rus)
         {
             if (!_dic.ContainsKey(eng))

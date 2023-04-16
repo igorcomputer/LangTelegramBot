@@ -28,7 +28,7 @@ namespace LangTranslationTelegramBot
 
             Bot = new TelegramBotClient("6191785024:AAEYEPcVg7oyd1C5xweaJc3kRFJLYJUQew4");
 
-            
+
 
             // TEST 
             //var me = Bot.GetMeAsync().Result;
@@ -83,7 +83,12 @@ namespace LangTranslationTelegramBot
             if (msgArr.Length != 3)
                 return "Не правильное количество аргументов. Их должно быть два";
             else
-                return CheckWord(msgArr[1], msgArr[2]);
+            {
+                if (Tutor.HasWord(msgArr[1]))
+                    return CheckWord(msgArr[1], msgArr[2]);
+                else
+                    return $"Слова \"{msgArr[1]}\" нет в словаре";
+            }
         }
 
         private static string CheckWord(string eng, string rus)
@@ -99,14 +104,14 @@ namespace LangTranslationTelegramBot
 
         private static string AddWords(string[] msgArr)
         {
-            if(msgArr.Length !=3)
+            if (msgArr.Length != 3)
                 return "Не правильное количество аргументов. Их должно быть два";
             else
             {
                 Tutor.AddWord(msgArr[1], msgArr[2]);
                 return "Новое слово добавлено в словарь";
             }
-            
+
         }
     }
 }

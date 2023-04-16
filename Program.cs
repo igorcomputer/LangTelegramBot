@@ -69,11 +69,17 @@ namespace LangTranslationTelegramBot
 
                 case "/check":
                     text = CheckWord(msgArgs);
+                    var newWord = GetRandomEngWord(userID);
+                    text = $"{text}\r\nСледующее слово \"{newWord}\"";
                     break;
 
                 default:
                     if (LastWord.ContainsKey(userID))
+                    {
                         text = CheckWord(LastWord[userID], msgArgs[0]);
+                        newWord = GetRandomEngWord(userID);
+                        text = $"{text}\r\nСледующее слово \"{newWord}\"";
+                    }
                     else
                         text = COMMAND_LIST;
                     break;
